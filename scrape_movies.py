@@ -8,6 +8,7 @@ import time
 import os
 import math
 
+# Define a model to store movie details
 class movieDetails(BaseModel):
 	id: Optional[int] = None
 	title: Optional[str] = None
@@ -19,6 +20,7 @@ class movieDetails(BaseModel):
 	tagline: Optional[str] = None
 	production: Optional[dict] = None
 
+# Define a model to store review details
 class reviewDetails(BaseModel):
 	quote: Optional[str] = None
 	score: Optional[int] = None
@@ -26,6 +28,7 @@ class reviewDetails(BaseModel):
 	author: Optional[str] = None
 	publicationName: Optional[str] = None
 
+# Function to start a session with retry logic for making HTTP requests
 def start_session(url):
 	headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"}	
 	session = requests.Session()
@@ -38,28 +41,33 @@ def start_session(url):
 	
 	return response
 
+# Create a directory to store data if it doesn't exist
 if not os.path.exists("data"):
 	os.makedirs("data")
 
-movies_list = []
-reviews_list = []
+# Initialize lists to store movie and review data
+movies_list, reviews_list = [],[]
 
+# Define scraping parameters
 review_types = ["user", "critic"]
 offset = 0
 offset_limit = 10000
 movie_limit = 25
 review_limits = [500, 100]
 
+# Get the total number of movies available
 upper_url = f"https://backend.metacritic.com/finder/metacritic/web?sortBy=-metaScore&productType=movies&page=2&releaseYearMin=1910&releaseYearMax=2025&offset={offset}&limit={movie_limit}&apiKey=1MOZgmNFxvmljaQR1X9KAij9Mo4xAY3u"
 upper_response = start_session(upper_url)
 
 movies_len = upper_response.json()["data"]["totalResults"]
 
+# Loop through all available movies
 for i in range(math.ceil(movies_len/movie_limit)):
 	
 	upper_url = f"https://backend.metacritic.com/finder/metacritic/web?sortBy=-metaScore&productType=movies&page=2&releaseYearMin=1910&releaseYearMax=2025&offset={offset}&limit={movie_limit}&apiKey=1MOZgmNFxvmljaQR1X9KAij9Mo4xAY3u"
 	upper_response = start_session(upper_url)
 	
+	# Retry request if response is not successful
 	while upper_response.status_code != 200:
 		
 		print("ERROR at offset -->", offset, "Trying Again !")
@@ -68,10 +76,13 @@ for i in range(math.ceil(movies_len/movie_limit)):
 
 	offset += movie_limit
 
+	# Extract movie details
 	for resp in upper_response.json()["data"]["items"]:
 		
 		movie_slug = resp["slug"]
+
 		try:
+			# Fetch detailed information for each movie
 			movie_url = f"https://backend.metacritic.com/composer/metacritic/pages/movies/{movie_slug}/web?filter=all&sort=date&apiKey=1MOZgmNFxvmljaQR1X9KAij9Mo4xAY3u"
 			movie_response = start_session(movie_url)
 			
@@ -84,10 +95,12 @@ for i in range(math.ceil(movies_len/movie_limit)):
 			movie_details = movie_response.json()            
 			movies_list.append(dict(movieDetails(**movie_details["components"][0]["data"]["item"])))
 			
+			# Extract metascore details
 			movies_list[-1]["metascore"] = movie_details["components"][4]["data"]["item"]["score"]
 			movies_list[-1]["metascore_count"] = movie_details["components"][4]["data"]["item"]["reviewCount"]
 			movies_list[-1]["metascore_sentiment"] = movie_details["components"][4]["data"]["item"]["sentiment"]
 
+			# Extract user score details
 			movies_list[-1]["userscore"] = movie_details["components"][6]["data"]["item"]["score"]
 			movies_list[-1]["userscore_count"] = movie_details["components"][6]["data"]["item"]["reviewCount"]
 			movies_list[-1]["userscore_sentiment"] = movie_details["components"][6]["data"]["item"]["sentiment"]
@@ -97,13 +110,15 @@ for i in range(math.ceil(movies_len/movie_limit)):
 			else:
 				movies_list[-1]["genres"] = None
 
+			# Extract cast details
 			movies_list[-1]["production_companies"] = ",".join([prod_comp["name"] for prod_comp in movies_list[-1]["production"]["companies"] if prod_comp["name"] is not None])
 			movies_list[-1]["director"] = ",".join([prod_comp["entertainmentProduct"]["name"] for prod_comp in movies_list[-1]["production"]["crew"] if "Director" in prod_comp["entertainmentProduct"]["profession"] and prod_comp["entertainmentProduct"]["name"] is not None])
 			movies_list[-1]["writer"] = ",".join([prod_comp["entertainmentProduct"]["name"] for prod_comp in movies_list[-1]["production"]["crew"] if "Writer" in prod_comp["entertainmentProduct"]["profession"] and prod_comp["entertainmentProduct"]["name"] is not None])
 			movies_list[-1]["top_cast"] = ",".join([prod_comp["name"] for prod_comp in movies_list[-1]["production"]["cast"] if prod_comp["name"] is not None])
 			
 			movies_list[-1].pop("production")
-			
+
+			# Fetch reviews for each movie across platforms
 			for review_type, review_limit in zip(review_types, review_limits):
 
 				review_offset = 0
@@ -115,7 +130,8 @@ for i in range(math.ceil(movies_len/movie_limit)):
 					print("ERROR at movie reviews -->", movie_slug, "|", review_type, "Trying again !")
 					time.sleep(1)
 					review_response = start_session(review_url)
-					
+				
+				# Process reviews
 				review_details = review_response.json()
 				review_number = review_details["data"]["totalResults"]
 				
@@ -163,6 +179,7 @@ movies_df.drop(movies_df[movies_df["id"].duplicated()].index, axis=0, inplace=Tr
 #Multiply user scores by 10 to make them compatible with critic score
 movies_df["userscore"] = movies_df["userscore"].apply(lambda x: x*10 if x is not None else x)
 
+# Save movie data to CSV
 movies_df.to_csv("data/movies.csv", index=False)
 
 reviews_df = pd.DataFrame(reviews_list)
@@ -177,4 +194,5 @@ def convertUserScores(col1, col2):
 
 reviews_df["score"] = reviews_df[["score", "review_type"]].apply(lambda x: convertUserScores(*x), axis=1)
 
+# Save review data to CSV
 reviews_df.drop_duplicates().to_csv("data/movies_reviews.csv", index=False)

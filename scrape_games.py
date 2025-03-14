@@ -8,6 +8,7 @@ import time
 import os
 import math
 
+# Define a model to store game details
 class gameDetails(BaseModel):
 	id: Optional[int] = None
 	title: Optional[str] = None
@@ -18,6 +19,7 @@ class gameDetails(BaseModel):
 	platforms: Optional[list] = None
 	production: Optional[dict] = None
 
+# Define a model to store review details
 class reviewDetails(BaseModel):
 	quote: Optional[str] = None
 	score: Optional[int] = None
@@ -26,6 +28,7 @@ class reviewDetails(BaseModel):
 	author: Optional[str] = None
 	publicationName: Optional[str] = None
 
+# Function to start a session with retry logic for making HTTP requests
 def start_session(url):
 	headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"}	
 	session = requests.Session()
@@ -37,29 +40,34 @@ def start_session(url):
 	response = session.get(url, headers=headers)
 	return response
 
+# Create a directory to store data if it doesn't exist
 if not os.path.exists("data"):
 	os.makedirs("data")
 
+# Initialize lists to store game and review data
 games_list, review_list = [], []
 
+# Define scraping parameters
 product_type = "games"
-
 review_types = ["user", "critic"]
 offset = 0
 offset_limit = 10000
 games_limit = 25
 review_limits = [500, 100]
 
+# Get the total number of games available
 upper_url = f"https://backend.metacritic.com/finder/metacritic/web?sortBy=-metaScore&productType={product_type}&page=2&releaseYearMin=1900&releaseYearMax=2025&offset={offset}&limit={games_limit}&apiKey=1MOZgmNFxvmljaQR1X9KAij9Mo4xAY3u"
 upper_response = start_session(upper_url)
 
 games_len = upper_response.json()["data"]["totalResults"]
 
+# Loop through all available games
 for i in range(math.ceil(games_len/games_limit)):
     
 	upper_url = f"https://backend.metacritic.com/finder/metacritic/web?sortBy=-metaScore&productType={product_type}&page=2&releaseYearMin=1900&releaseYearMax=2025&offset={offset}&limit={games_limit}&apiKey=1MOZgmNFxvmljaQR1X9KAij9Mo4xAY3u"
 	upper_response = start_session(upper_url)
     
+    # Retry request if response is not successful
 	while upper_response.status_code != 200:
 		
 		print("ERROR at offset -->", offset, "Trying Again !")
@@ -67,11 +75,14 @@ for i in range(math.ceil(games_len/games_limit)):
 		upper_response = start_session(upper_url)
 
 	offset += games_limit
+
+	# Extract game details
 	for resp in upper_response.json()["data"]["items"]:
 		
 		slug_name = resp["slug"]
 
 		try:
+			# Fetch detailed information for each game
 			game_url = f"https://backend.metacritic.com/composer/metacritic/pages/{product_type}/{slug_name}/web?filter=all&sort=date&apiKey=1MOZgmNFxvmljaQR1X9KAij9Mo4xAY3u"
 			game_response = start_session(game_url)
 			
@@ -83,10 +94,13 @@ for i in range(math.ceil(games_len/games_limit)):
 				
 			game_details = game_response.json()
 			games_list.append(dict(gameDetails(**game_details["components"][0]["data"]["item"])))
+
+			# Extract metascore details
 			games_list[-1]["metascore"] = game_details["components"][6]["data"]["item"]["score"]
 			games_list[-1]["metascore_count"] = game_details["components"][6]["data"]["item"]["reviewCount"]
 			games_list[-1]["metascore_sentiment"] = game_details["components"][6]["data"]["item"]["sentiment"]
 			
+			# Extract user score details
 			games_list[-1]["userscore"] = game_details["components"][8]["data"]["item"]["score"]
 			games_list[-1]["userscore_count"] = game_details["components"][8]["data"]["item"]["reviewCount"]
 			games_list[-1]["userscore_sentiment"] = game_details["components"][8]["data"]["item"]["sentiment"]
@@ -96,6 +110,7 @@ for i in range(math.ceil(games_len/games_limit)):
 			else:
 				games_list[-1]["genres"] = None
 
+			# Extract platform and developer details
 			games_list[-1]["platforms"] = ",".join([platform["name"] for platform in game_details["components"][0]["data"]["item"]["platforms"] if platform["criticScoreSummary"]["score"] is not None])
 			games_list[-1]["platform_metascores"] = ",".join([str(platform["criticScoreSummary"]["score"]) for platform in game_details["components"][0]["data"]["item"]["platforms"] if platform["criticScoreSummary"]["score"] is not None])
 			games_list[-1]["developer"] = ",".join([prod_comp["name"] for prod_comp in games_list[-1]["production"]["companies"] if "Developer" in prod_comp["typeName"] and prod_comp["name"] is not None])
@@ -105,8 +120,8 @@ for i in range(math.ceil(games_len/games_limit)):
 	
 			games_list[-1].pop("production")
 
+			# Fetch reviews for each game across platforms
 			for review_type, review_limit in zip(review_types, review_limits):
-			
 				for platform_slug in platform_slugs:
 
 					review_offset = 0
@@ -118,7 +133,8 @@ for i in range(math.ceil(games_len/games_limit)):
 						print("ERROR at game reviews -->", slug_name, "|", review_type, "|", platform_slug, "- Trying again !")
 						time.sleep(1)
 						review_response = start_session(review_url)
-						
+					
+					# Process reviews
 					review_details = review_response.json()
 					review_number = review_details["data"]["totalResults"]
 					
@@ -166,6 +182,7 @@ games_df.drop(games_df[games_df["id"].duplicated()].index, axis=0, inplace=True)
 #Multiply user scores by 10 to make them compatible with critic score
 games_df["userscore"] = games_df["userscore"].apply(lambda x: x*10 if x is not None else x)
 
+# Save game data to CSV
 games_df.to_csv("data/games.csv", index=False)
 
 reviews_df = pd.DataFrame(review_list)
@@ -180,4 +197,5 @@ def convertUserScores(col1, col2):
 
 reviews_df["score"] = reviews_df[["score", "review_type"]].apply(lambda x: convertUserScores(*x), axis=1)
 
+# Save review data to CSV
 reviews_df.drop_duplicates().to_csv("data/games_reviews.csv", index=False)

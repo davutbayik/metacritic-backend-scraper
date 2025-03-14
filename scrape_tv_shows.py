@@ -9,6 +9,7 @@ import time
 import os
 import math
 
+# Define a model to store tv show details
 class ShowDetails(BaseModel):
 	id: Optional[int] = None
 	title: Optional[str] = None
@@ -20,6 +21,7 @@ class ShowDetails(BaseModel):
 	tagline: Optional[str] = None
 	production: Optional[dict] = None
 
+# Define a model to store review details
 class reviewDetails(BaseModel):
 	quote: Optional[str] = None
 	score: Optional[int] = None
@@ -27,6 +29,7 @@ class reviewDetails(BaseModel):
 	author: Optional[str] = None
 	publicationName: Optional[str] = None
 
+# Function to start a session with retry logic for making HTTP requests
 def start_session(url):
 	headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"}	
 	session = requests.Session()
@@ -38,31 +41,35 @@ def start_session(url):
 	response = session.get(url, headers=headers)
 	return response
 
+# Create a directory to store data if it doesn't exist
 if not os.path.exists("data"):
 	os.makedirs("data")
 
-show_list = []
-reviews_list = []
+# Initialize lists to store tv show and review data
+show_list, reviews_list = [],[]
 
+# Define scraping parameters
 product_type_upper = "tv"
 product_type_lower = "shows"
-
 review_types = ["user", "critic"]
 offset = 0
 offset_limit = 10000
 show_limit = 25
 review_limits = [500, 100]
 
+# Get the total number of tv shows available
 upper_url = f"https://backend.metacritic.com/finder/metacritic/web?sortBy=-metaScore&productType={product_type_upper}&page=2&releaseYearMin=1910&releaseYearMax=2025&offset={offset}&limit={show_limit}&apiKey=1MOZgmNFxvmljaQR1X9KAij9Mo4xAY3u"
 upper_response = start_session(upper_url)
 
 show_len = upper_response.json()["data"]["totalResults"]
 
+# Loop through all available tv shows
 for i in range(math.ceil(show_len/show_limit)):
 	
 	upper_url = f"https://backend.metacritic.com/finder/metacritic/web?sortBy=-metaScore&productType={product_type_upper}&page=2&releaseYearMin=1910&releaseYearMax=2025&offset={offset}&limit={show_limit}&apiKey=1MOZgmNFxvmljaQR1X9KAij9Mo4xAY3u"
 	upper_response = start_session(upper_url)
 	
+	# Retry request if response is not successful
 	while upper_response.status_code != 200:
 		
 		print("ERROR at offset -->", offset, "Trying Again !")
@@ -70,12 +77,15 @@ for i in range(math.ceil(show_len/show_limit)):
 		upper_response = start_session(upper_url)
 
 	offset += show_limit
+
+	# Extract tv show details
 	for resp in upper_response.json()["data"]["items"]:
 		
 		num_seasons = resp["numberOfSeasons"]
 		show_slug = resp["slug"]
 
 		try:
+			# Fetch detailed information for each tv show
 			show_url = f"https://backend.metacritic.com/composer/metacritic/pages/{product_type_lower}/{show_slug}/web?filter=all&sort=date&apiKey=1MOZgmNFxvmljaQR1X9KAij9Mo4xAY3u"
 			show_response = start_session(show_url)
 			
@@ -91,10 +101,12 @@ for i in range(math.ceil(show_len/show_limit)):
 			if product_type_lower == 'shows':
 				show_list[-1]["num_seasons"] = num_seasons
 			
+			# Extract metascore details
 			show_list[-1]["metascore"] = show_details["components"][4]["data"]["item"]["score"]
 			show_list[-1]["metascore_count"] = show_details["components"][4]["data"]["item"]["reviewCount"]
 			show_list[-1]["metascore_sentiment"] = show_details["components"][4]["data"]["item"]["sentiment"]
 			
+			# Extract user score details
 			show_list[-1]["userscore"] = show_details["components"][6]["data"]["item"]["score"]
 			show_list[-1]["userscore_count"] = show_details["components"][6]["data"]["item"]["reviewCount"]
 			show_list[-1]["userscore_sentiment"] = show_details["components"][6]["data"]["item"]["sentiment"]
@@ -104,6 +116,7 @@ for i in range(math.ceil(show_len/show_limit)):
 			else:
 				show_list[-1]["genres"] = None
 
+			# Extract cast details
 			show_list[-1]["production_companies"] = ",".join([prod_comp["name"] for prod_comp in show_list[-1]["production"]["companies"] if prod_comp["name"] is not None])
 			
 			if product_type_lower == 'shows':
@@ -115,6 +128,7 @@ for i in range(math.ceil(show_len/show_limit)):
 			
 			show_list[-1].pop("production")
 			
+			# Fetch reviews for each tv show across platforms
 			for review_type, review_limit in zip(review_types, review_limits):
 
 				review_offset = 0
@@ -126,7 +140,8 @@ for i in range(math.ceil(show_len/show_limit)):
 					print("ERROR at show reviews -->", show_slug, "|", review_type, "- Trying again !")
 					time.sleep(1)
 					review_response = start_session(review_url)
-					
+				
+				# Process reviews
 				review_details = review_response.json()
 				review_number = review_details["data"]["totalResults"]
 				
@@ -173,6 +188,7 @@ show_df.drop(show_df[show_df["id"].duplicated()].index, axis=0, inplace=True)
 #Multiply user scores by 10 to make them compatible with critic score
 show_df["userscore"] = show_df["userscore"].apply(lambda x: x*10 if x is not None else x)
 
+# Save tv show data to CSV
 show_df.to_csv("data/tv_shows.csv", index=False)
 
 reviews_df = pd.DataFrame(reviews_list)
@@ -187,4 +203,5 @@ def convertUserScores(col1, col2):
 
 reviews_df["score"] = reviews_df[["score", "review_type"]].apply(lambda x: convertUserScores(*x), axis=1)
 
+# Save tv show reviews to CSV
 reviews_df.drop_duplicates().to_csv("data/tv_shows_reviews.csv", index=False)
