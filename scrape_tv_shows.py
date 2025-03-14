@@ -8,6 +8,7 @@ import pandas as pd
 import time
 import os
 import math
+from datetime import datetime
 
 # Define a model to store tv show details
 class ShowDetails(BaseModel):
@@ -56,9 +57,10 @@ offset = 0
 offset_limit = 10000
 show_limit = 25
 review_limits = [500, 100]
+current_year = datetime.now().year
 
 # Get the total number of tv shows available
-upper_url = f"https://backend.metacritic.com/finder/metacritic/web?sortBy=-metaScore&productType={product_type_upper}&page=2&releaseYearMin=1910&releaseYearMax=2025&offset={offset}&limit={show_limit}&apiKey=1MOZgmNFxvmljaQR1X9KAij9Mo4xAY3u"
+upper_url = f"https://backend.metacritic.com/finder/metacritic/web?sortBy=-metaScore&productType={product_type_upper}&page=2&releaseYearMin=1900&releaseYearMax={current_year}&offset={offset}&limit={show_limit}&apiKey=1MOZgmNFxvmljaQR1X9KAij9Mo4xAY3u"
 upper_response = start_session(upper_url)
 
 show_len = upper_response.json()["data"]["totalResults"]
@@ -66,7 +68,7 @@ show_len = upper_response.json()["data"]["totalResults"]
 # Loop through all available tv shows
 for i in range(math.ceil(show_len/show_limit)):
 	
-	upper_url = f"https://backend.metacritic.com/finder/metacritic/web?sortBy=-metaScore&productType={product_type_upper}&page=2&releaseYearMin=1910&releaseYearMax=2025&offset={offset}&limit={show_limit}&apiKey=1MOZgmNFxvmljaQR1X9KAij9Mo4xAY3u"
+	upper_url = f"https://backend.metacritic.com/finder/metacritic/web?sortBy=-metaScore&productType={product_type_upper}&page=2&releaseYearMin=1900&releaseYearMax={current_year}&offset={offset}&limit={show_limit}&apiKey=1MOZgmNFxvmljaQR1X9KAij9Mo4xAY3u"
 	upper_response = start_session(upper_url)
 	
 	# Retry request if response is not successful

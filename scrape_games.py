@@ -7,6 +7,7 @@ import pandas as pd
 import time
 import os
 import math
+from datetime import datetime
 
 # Define a model to store game details
 class gameDetails(BaseModel):
@@ -54,6 +55,7 @@ offset = 0
 offset_limit = 10000
 games_limit = 25
 review_limits = [500, 100]
+current_year = datetime.now().year
 
 # Get the total number of games available
 upper_url = f"https://backend.metacritic.com/finder/metacritic/web?sortBy=-metaScore&productType={product_type}&page=2&releaseYearMin=1900&releaseYearMax=2025&offset={offset}&limit={games_limit}&apiKey=1MOZgmNFxvmljaQR1X9KAij9Mo4xAY3u"

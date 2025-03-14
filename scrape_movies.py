@@ -7,6 +7,7 @@ import pandas as pd
 import time
 import os
 import math
+from datetime import datetime
 
 # Define a model to store movie details
 class movieDetails(BaseModel):
@@ -54,9 +55,10 @@ offset = 0
 offset_limit = 10000
 movie_limit = 25
 review_limits = [500, 100]
+current_year = datetime.now().year
 
 # Get the total number of movies available
-upper_url = f"https://backend.metacritic.com/finder/metacritic/web?sortBy=-metaScore&productType=movies&page=2&releaseYearMin=1910&releaseYearMax=2025&offset={offset}&limit={movie_limit}&apiKey=1MOZgmNFxvmljaQR1X9KAij9Mo4xAY3u"
+upper_url = f"https://backend.metacritic.com/finder/metacritic/web?sortBy=-metaScore&productType=movies&page=2&releaseYearMin=1900&releaseYearMax={current_year}&offset={offset}&limit={movie_limit}&apiKey=1MOZgmNFxvmljaQR1X9KAij9Mo4xAY3u"
 upper_response = start_session(upper_url)
 
 movies_len = upper_response.json()["data"]["totalResults"]
@@ -64,7 +66,7 @@ movies_len = upper_response.json()["data"]["totalResults"]
 # Loop through all available movies
 for i in range(math.ceil(movies_len/movie_limit)):
 	
-	upper_url = f"https://backend.metacritic.com/finder/metacritic/web?sortBy=-metaScore&productType=movies&page=2&releaseYearMin=1910&releaseYearMax=2025&offset={offset}&limit={movie_limit}&apiKey=1MOZgmNFxvmljaQR1X9KAij9Mo4xAY3u"
+	upper_url = f"https://backend.metacritic.com/finder/metacritic/web?sortBy=-metaScore&productType=movies&page=2&releaseYearMin=1900&releaseYearMax={current_year}&offset={offset}&limit={movie_limit}&apiKey=1MOZgmNFxvmljaQR1X9KAij9Mo4xAY3u"
 	upper_response = start_session(upper_url)
 	
 	# Retry request if response is not successful
