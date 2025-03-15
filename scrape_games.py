@@ -58,7 +58,7 @@ review_limits = [500, 100]
 current_year = datetime.now().year
 
 # Get the total number of games available
-upper_url = f"https://backend.metacritic.com/finder/metacritic/web?sortBy=-metaScore&productType={product_type}&page=2&releaseYearMin=1900&releaseYearMax=2025&offset={offset}&limit={games_limit}&apiKey=1MOZgmNFxvmljaQR1X9KAij9Mo4xAY3u"
+upper_url = f"https://backend.metacritic.com/finder/metacritic/web?sortBy=-metaScore&productType={product_type}&page=2&releaseYearMin=1900&releaseYearMax={current_year}&offset={offset}&limit={games_limit}&apiKey=1MOZgmNFxvmljaQR1X9KAij9Mo4xAY3u"
 upper_response = start_session(upper_url)
 
 games_len = upper_response.json()["data"]["totalResults"]
@@ -66,7 +66,7 @@ games_len = upper_response.json()["data"]["totalResults"]
 # Loop through all available games
 for i in range(math.ceil(games_len/games_limit)):
     
-	upper_url = f"https://backend.metacritic.com/finder/metacritic/web?sortBy=-metaScore&productType={product_type}&page=2&releaseYearMin=1900&releaseYearMax=2025&offset={offset}&limit={games_limit}&apiKey=1MOZgmNFxvmljaQR1X9KAij9Mo4xAY3u"
+	upper_url = f"https://backend.metacritic.com/finder/metacritic/web?sortBy=-metaScore&productType={product_type}&page=2&releaseYearMin=1900&releaseYearMax={current_year}&offset={offset}&limit={games_limit}&apiKey=1MOZgmNFxvmljaQR1X9KAij9Mo4xAY3u"
 	upper_response = start_session(upper_url)
     
     # Retry request if response is not successful
