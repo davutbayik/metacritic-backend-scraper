@@ -42,6 +42,9 @@ def start_session(url):
 	response = session.get(url, headers=headers)
 	return response
 
+start_time = time.time()
+print("\nMetacritic tv shows scraping is started!\n")
+
 # Create a directory to store data if it doesn't exist
 if not os.path.exists("data"):
 	os.makedirs("data")
@@ -180,6 +183,13 @@ for i in range(math.ceil(show_len/show_limit)):
 		except Exception as e:
 			print(e, "-->", show_slug, "- at offset -", i)
 			continue
+
+end_time = time.time()
+scraping_duration = round((end_time - start_time)/60, 2)
+
+print(f"Finished scraping metacritic tv shows information and reviews.\n"
+	f"Total number of tv shows scraped --> {len(show_list)}.\n"
+	f"The duration for scraping is --> {scraping_duration} minutes.")
 
 show_df = pd.DataFrame(show_list)
 if "production" in show_df.columns:
