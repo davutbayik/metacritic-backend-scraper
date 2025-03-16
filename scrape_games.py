@@ -198,6 +198,7 @@ games_df["userscore"] = games_df["userscore"].apply(lambda x: x*10 if x is not N
 games_df.to_csv("data/games.csv", index=False)
 
 reviews_df = pd.DataFrame(review_list)
+reviews_df.rename(columns={'game_id': 'id', 'game_name': 'title'}, inplace=True)
 reviews_df = reviews_df[["game_id", "game_name", "quote", "score", "date", "platform", "author", "publicationName", "review_type"]]
 
 #Multiply user scores by 10 to make them compatible with critic scores

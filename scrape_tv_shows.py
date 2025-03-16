@@ -204,7 +204,8 @@ show_df["userscore"] = show_df["userscore"].apply(lambda x: x*10 if x is not Non
 show_df.to_csv("data/tv_shows.csv", index=False)
 
 reviews_df = pd.DataFrame(reviews_list)
-reviews_df = reviews_df[["show_id", "show_name", "quote", "score", "date", "author", "publicationName", "review_type"]]
+reviews_df.rename(columns={'show_id': 'id', 'show_name': 'title'}, inplace=True)
+reviews_df = reviews_df[["id", "title", "quote", "score", "date", "author", "publicationName", "review_type"]]
 
 #Multiply user scores by 10 to make them compatible with critic scores
 def convertUserScores(col1, col2):

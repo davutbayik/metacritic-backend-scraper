@@ -195,6 +195,7 @@ movies_df["userscore"] = movies_df["userscore"].apply(lambda x: x*10 if x is not
 movies_df.to_csv("data/movies.csv", index=False)
 
 reviews_df = pd.DataFrame(reviews_list)
+reviews_df.rename(columns={'movie_id': 'id', 'movie_name': 'title'}, inplace=True)
 reviews_df = reviews_df[["movie_id", "movie_name", "quote", "score", "date", "author", "publicationName", "review_type"]]
 
 #Multiply user scores by 10 to make them compatible with critic scores
