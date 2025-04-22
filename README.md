@@ -1,4 +1,4 @@
-# 🎮🎬 Metacritic Backend Scraper
+<img width="1837" alt="image" src="https://github.com/user-attachments/assets/9350b9e8-9c1f-4994-bc43-be252a86a0db" /># 🎮🎬 Metacritic Backend Scraper
 
 **Scrape high-quality data on games, movies, and TV shows straight from Metacritic’s backend. No frontend scraping. No fluff. Just clean, structured data.**
 
@@ -101,12 +101,11 @@ Data is saved automatically to the `data/` directory as:
 
 ## 🧾 Example Outputs
 
-![Terminal Output](assets/metacritic_scraper.png)
+![Terminal Output](assets/terminal_output.png)
 
-![Games](assets/reviews.png)
+![Games](assets/games.png)
 
-![Reviews](assets/games.png)
-
+![Reviews](assets/reviews.png)
 
 ## ⚙️ Dependencies
 
