@@ -86,7 +86,7 @@ scraper = MetacriticScraper(product_type="games")
 games, reviews = scraper.fetch_products_by_year(year=2023)
 ```
 
-### 4. Scrape all movies for which having at least 7 reviews:
+### 4. Scrape all movies (metacritic fetches all products which have at least 7 reviews)
 ```python
 scraper = MetacriticScraper(product_type="movies")
 movies, reviews = scraper.fetch_all_products()
@@ -99,15 +99,8 @@ Data is saved automatically to the `data/` directory as:
 
 (Change `games` to `movies` or `shows` depending on type.)
 
-## 🧾 Output Format
+## 🧾 Example Outputs
 
-**Products CSV:**
-| id | title | releaseDate | rating | genres | ... |
-|----|-------|-------------|--------|--------|-----|
-
-**Reviews CSV:**
-| id | title | quote | score | date | author | publicationName | review_type |
-|----|-------|-------|-------|------|--------|------------------|-------------|
 
 ## ⚙️ Dependencies
 
