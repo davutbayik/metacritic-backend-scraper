@@ -1,4 +1,4 @@
-<img width="1837" alt="image" src="https://github.com/user-attachments/assets/9350b9e8-9c1f-4994-bc43-be252a86a0db" /># 🎮🎬 Metacritic Backend Scraper
+# 🎮🎬 Metacritic Backend Scraper
 
 **Scrape high-quality data on games, movies, and TV shows straight from Metacritic’s backend. No frontend scraping. No fluff. Just clean, structured data.**
 
