@@ -99,6 +99,20 @@ Data is saved automatically to the `data/` directory as:
 
 (Change `games` to `movies` or `shows` depending on type.)
 
+## 📊 Datasets on Kaggle
+
+Want to explore the scraped data directly without running the scraper?
+
+Check out the published datasets on Kaggle using directly the metacriticScraper class:
+
+🔗 [Metacritic Games Dataset](https://www.kaggle.com/datasets/davutb/metacritic-games)  
+🔗 [Metacritic Movies Dataset](https://www.kaggle.com/datasets/davutb/metacritic-movies)  
+🔗 [Metacritic TV Shows Dataset](https://www.kaggle.com/datasets/davutb/metacritic-tv-shows)
+
+Each dataset includes both the **metadata** and **reviews**, formatted and ready for analysis in CSV format.
+
+*Don't forget to upvote if you find them useful! 👍*
+
 ## 🧾 Example Outputs
 
 ![Terminal Output](assets/terminal_output.png)
