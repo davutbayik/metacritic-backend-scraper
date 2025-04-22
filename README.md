@@ -101,6 +101,12 @@ Data is saved automatically to the `data/` directory as:
 
 ## 🧾 Example Outputs
 
+![Terminal Output](assets/metacritic_scraper.png)
+
+![Games](assets/reviews.png)
+
+![Reviews](assets/games.png)
+
 
 ## ⚙️ Dependencies
 
