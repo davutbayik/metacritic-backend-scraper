@@ -71,13 +71,13 @@ games, reviews = scraper.fetch_top_products(limit=10)
 ### 1. Scrape top 20 movies from the last decade:
 ```python
 scraper = MetacriticScraper(product_type="movies")
-movies, reviews = scraper.fetch_top_products(limit=20, year_min=2014)
+movies, reviews = scraper.fetch_top_products(limit=20, year_min=2015)
 ```
 
 ### 2. Scrape reviews for specific shows:
 ```python
 scraper = MetacriticScraper(product_type="shows")
-shows, reviews = scraper.fetch_product_list(["Breaking Bad", "The Wire"])
+shows, reviews = scraper.fetch_product_list(["Breaking Bad", "Better Call Saul"])
 ```
 
 ### 3. Scrape games released in 2023:
