@@ -1,13 +1,13 @@
 # 🎮🎬 Metacritic Backend Scraper
 
-**Scrape high-quality data on games, movies, and TV shows straight from Metacritic’s backend. No frontend scraping. No fluff. Just clean, structured data.**
-
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue)](https://www.python.org/)
 [![Stars](https://img.shields.io/github/stars/davutbayik/metacritic-backend-scraper?style=social)](https://github.com/davutbayik/metacritic-backend-scraper/stargazers)
 ![Made with love](https://img.shields.io/badge/Made%20with-%E2%9D%A4-red)
 
 ---
+
+**Scrape high-quality data on games, movies, and TV shows straight from Metacritic’s backend. No frontend scraping. No fluff. Just clean, structured data.**
 
 ## ✨ What is this?
 
