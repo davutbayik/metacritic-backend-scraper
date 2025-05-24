@@ -20,13 +20,13 @@ It uses clean `requests` logic with retry mechanisms, structured `Pydantic` mode
 
 ## 🚀 Features
 
-🎯 Full metadata extraction (release date, ratings, genres, platforms, cast, director, etc.)
-📝 Fetch critic and user reviews, complete with scores and quotes
-📊 Supports single title, top-ranked titles, by year, or custom product lists
-📋 Logs every action to both console and file
-💾 Saves outputs to easy-to-use CSVs
-🔐 Unicode-safe, URL-safe slugification
-🧩 Built with modularity, extensibility, and readability in mind
+- 🎯 Full metadata extraction (release date, ratings, genres, platforms, cast, director, etc.)
+- 📝 Fetch critic and user reviews, complete with scores and quotes
+- 📊 Supports single title, top-ranked titles, by year, or custom product lists
+- 📋 Logs every action to both console and file
+- 💾 Saves outputs to easy-to-use CSVs
+- 🔐 Unicode-safe, URL-safe slugification
+- 🧩 Built with modularity, extensibility, and readability in mind
 
 ### Installation
 
