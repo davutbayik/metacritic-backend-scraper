@@ -120,7 +120,7 @@ Each dataset includes both the **metadata** and **reviews**, formatted and ready
 
 ![Reviews](assets/reviews.png)
 
-## Example Demo
+## 🎥 Example Demo
 
 
 https://github.com/user-attachments/assets/ac84eae4-c03f-43d3-8761-7ed1ad6ae498
