@@ -3,7 +3,7 @@ import os
 import re
 import unicodedata
 import logging
-from typing import Optional, List, Dict
+from typing import Optional
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
